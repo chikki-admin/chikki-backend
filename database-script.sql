@@ -3,6 +3,7 @@ CREATE TABLE "fish_inventory" (
   "fish_name" varchar(255) NOT NULL,
   "origin" varchar(255) NOT NULL,
   "price" varchar(255) NOT NULL,
+  "description" varchar(255) NOT NULL,
   "bought" boolean NOT NULL,
   "display" boolean NOT NULL,
   "image_source" varchar(255) NOT NULL,

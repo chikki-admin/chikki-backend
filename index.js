@@ -12,7 +12,8 @@ app.use(bodyParser.json())
 app.use(cors())
 
 // Environment Variables
-const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD } = process.env
+const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD,
+  INTERNALUSERNAME, INTERNALPASSWORD } = process.env
 const { NODE_ENV } = process.env
 // Clinets
 const clientConfig = () => {
@@ -23,6 +24,8 @@ const clientConfig = () => {
       database: PGDATABASE,
       user: PGUSER,
       password: PGPASSWORD,
+      internalUser: INTERNALUSERNAME,
+      interalPassword: INTERNALPASSWORD
     }
   } else {
     return {
@@ -31,10 +34,12 @@ const clientConfig = () => {
       database: 'postgres',
       user: 'postgres',
       password: 'new_password',
+      internalUser: 'test',
+      interalPassword: 'test'
     }
   }
 }
-const { host, dbPort, database, user, password } = clientConfig()
+const { host, dbPort, database, user, password, internalUser, interalPassword } = clientConfig()
 const pool = new pg.Pool({
   host: host,
   port: dbPort,
@@ -58,12 +63,16 @@ const getQuery = (query, res) => {
 
 // Routes
 app.post('/fish', (req, res) => {
-  const {name, price, origin} = req.body
+  const {name, price, origin, s3Source, description, username, password} = req.body
+  if (username !== internalUser || password !== interalPassword) {
+    res.sendStatus(403)
+    return
+  }
   const query = {
     text: 'INSERT INTO fish_inventory \
-    (id, fish_name, origin, price, bought, display, image_source) \
-    VALUES($1, $2, $3, $4, $5, $6, $7)',
-    values: [uuidv4(), name, origin, price, false, true, 's3://fish-images/placeholder.png'],
+    (id, fish_name, origin, price, bought, display, image_source, description) \
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8)',
+    values: [uuidv4(), name, origin, price, false, true, s3Source, description],
   }
   postQuery(query, res)
 })
