@@ -33,7 +33,7 @@ const clientConfig = () => {
       dbPort: 5432,
       database: 'postgres',
       user: 'postgres',
-      password: 'new_password',
+      password: 'newpassword',
       internalUser: 'test',
       interalPassword: 'test'
     }
@@ -47,7 +47,7 @@ const pool = new pg.Pool({
   password: password,
   database: database
 })
-pool.connect()
+pool.connect().catch((e) => console.error(e.stack))
 
 // Local Functions
 const postQuery = (query, res) => {
@@ -58,6 +58,11 @@ const postQuery = (query, res) => {
 const getQuery = (query, res) => {
   pool.query(query)
   .then((result) => res.send(result.rows))
+  .catch((e) => console.error(e.stack))
+}
+const putQuery = (query, res) => {
+  pool.query(query)
+  .then((_) => res.sendStatus(200))
   .catch((e) => console.error(e.stack))
 }
 
@@ -76,6 +81,16 @@ app.post('/fish', (req, res) => {
   }
   postQuery(query, res)
 })
+
+app.put(`/fish/:id`, (req, res) => {
+  const {id} = req.params
+  const query = {
+    text: 'UPDATE fish_inventory SET bought = true WHERE id = $1',
+    values: [id],
+  }
+  putQuery(query, res)
+})
+
 
 app.get('/fish', (_, res) => {
   const query = {

@@ -13,4 +13,4 @@ CREATE TABLE "fish_inventory" (
 )
 
 
-ALTER USER hoang WITH PASSWORD 'new_password';
+ALTER USER postgres WITH PASSWORD 'newpassword';
