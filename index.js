@@ -13,7 +13,7 @@ app.use(cors())
 
 // Environment Variables
 const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD,
-  INTERNALUSERNAME, INTERNALPASSWORD } = process.env
+  INTERNALUSERNAME, INTERNALPASSWORD, STREAM_PATH } = process.env
 const { NODE_ENV } = process.env
 // Clinets
 const clientConfig = () => {
@@ -97,6 +97,10 @@ app.get('/fish', (_, res) => {
     text: 'SELECT * FROM fish_inventory',
   }
   getQuery(query, res)
+})
+
+app.get('/livestream', (_, res) => {
+  return res.send(STREAM_PATH)
 })
 
 app.get('/status', (req, res) => {
