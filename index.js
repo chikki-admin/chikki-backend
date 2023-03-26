@@ -29,6 +29,7 @@ const clientConfig = () => {
       interalPassword: INTERNALPASSWORD
     }
   } else {
+    console.log(`Development Mode ${Date,now()}}`)
     return {
       host: 'localhost',
       dbPort: 5432,
