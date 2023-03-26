@@ -18,6 +18,7 @@ const { NODE_ENV } = process.env
 // Clinets
 const clientConfig = () => {
   if (NODE_ENV === 'production') {
+    console.log(`Production Mode ${Date,now()}}`)
     return {
       host: PGHOST,
       dbPort: PGPORT,
