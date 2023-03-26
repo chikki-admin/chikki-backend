@@ -13,11 +13,10 @@ app.use(cors())
 
 // Environment Variables
 const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD,
-  INTERNALUSERNAME, INTERNALPASSWORD, STREAM_PATH } = process.env
-const { NODE_ENV } = process.env
-// Clinets
+  INTERNALUSERNAME, INTERNALPASSWORD, STREAM_PATH, NODE_ENV } = process.env
+// Clients
 const clientConfig = () => {
-  if (NODE_ENV === 'production') {
+  if (NODE_ENV == 'production') {
     console.log(`Production Mode ${Date.now()}}`)
     return {
       host: PGHOST,
