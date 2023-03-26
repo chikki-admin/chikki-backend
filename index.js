@@ -18,7 +18,7 @@ const { NODE_ENV } = process.env
 // Clinets
 const clientConfig = () => {
   if (NODE_ENV === 'production') {
-    console.log(`Production Mode ${Date,now()}}`)
+    console.log(`Production Mode ${Date.now()}}`)
     return {
       host: PGHOST,
       dbPort: PGPORT,
@@ -29,7 +29,7 @@ const clientConfig = () => {
       interalPassword: INTERNALPASSWORD
     }
   } else {
-    console.log(`Development Mode ${Date,now()}}`)
+    console.log(`Development Mode ${Date.now()}}`)
     return {
       host: 'localhost',
       dbPort: 5432,
