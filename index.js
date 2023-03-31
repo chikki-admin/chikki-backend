@@ -5,6 +5,9 @@ const bodyParser = require('body-parser')
 const { v4: uuidv4 } = require('uuid');
 const app = express()
 const port = 8000
+const stripe_key = process.env.STRIPE_SECRETE_KEY_TEST
+const stripe = require('stripe')(stripe_key)
+
 
 
 // Middleware
@@ -107,6 +110,28 @@ app.get('/livestream', (_, res) => {
 app.get('/status', (req, res) => {
   res.send('OK')
 })
+
+app.post('/create-checkout-session', async (_, res) => {
+  const session = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: 'T-shirt',
+          },
+          unit_amount: 2000,
+        },
+        quantity: 1,
+      },
+    ],
+    mode: 'payment',
+    success_url: 'http://localhost:3000/success',
+    cancel_url: 'http://localhost:3000/cancel'
+  });
+
+  res.json({url: session.url})
+});
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`)
