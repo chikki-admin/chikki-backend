@@ -5,7 +5,7 @@ const bodyParser = require('body-parser')
 const { v4: uuidv4 } = require('uuid');
 const app = express()
 const port = 8000
-const stripe_key = process.env.STRIPE_SECRETE_KEY_TEST
+const stripe_key = 'sk_test_51MrE0PJN8JLDL0ga0Xt2I9zDq8v2mrRNPfDFahHXPAGOvdnIw5Z1V3FrjW1y0adrsRV8zGnWGw6ouyU5GWo6ExIm00gupXlgzt'
 const stripe = require('stripe')(stripe_key)
 
 
@@ -28,7 +28,8 @@ const clientConfig = () => {
       user: PGUSER,
       password: PGPASSWORD,
       internalUser: INTERNALUSERNAME,
-      interalPassword: INTERNALPASSWORD
+      interalPassword: INTERNALPASSWORD,
+      frontEndUri: 'https://www.chikkiaquatics.com'
     }
   } else {
     console.log(`Development Mode ${Date.now()}}`)
@@ -39,11 +40,12 @@ const clientConfig = () => {
       user: 'postgres',
       password: 'newpassword',
       internalUser: 'test',
-      interalPassword: 'test'
+      interalPassword: 'test',
+      frontEndUri: 'http://localhost:3000'
     }
   }
 }
-const { host, dbPort, database, user, password, internalUser, interalPassword } = clientConfig()
+const { host, dbPort, database, user, password, internalUser, interalPassword, frontEndUri} = clientConfig()
 const pool = new pg.Pool({
   host: host,
   port: dbPort,
@@ -86,13 +88,18 @@ app.post('/fish', (req, res) => {
   postQuery(query, res)
 })
 
-app.put(`/fish/:id`, (req, res) => {
-  const {id} = req.params
-  const query = {
-    text: 'UPDATE fish_inventory SET bought = true WHERE id = $1',
-    values: [id],
+app.post(`/fish/:sessionId`, async (req, res) => {
+  const {sessionId} = req.params
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+  const fishId = session.metadata.fishId
+  if(session.payment_status === 'paid') {
+    const query = {
+      text: 'UPDATE fish_inventory SET bought = true WHERE id = $1',
+      values: [fishId],
+    }
+    putQuery(query, res)
   }
-  putQuery(query, res)
 })
 
 
@@ -111,7 +118,7 @@ app.get('/status', (req, res) => {
   res.send('OK')
 })
 
-app.post('/create-checkout-session', async (_, res) => {
+app.post('/create-checkout-session', async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     line_items: [
       {
@@ -125,9 +132,12 @@ app.post('/create-checkout-session', async (_, res) => {
         quantity: 1,
       },
     ],
+    metadata: {
+      'fishId': req.body.fishId,
+    },
     mode: 'payment',
-    success_url: 'http://localhost:3000/success',
-    cancel_url: 'http://localhost:3000/cancel'
+    success_url: `${frontEndUri}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${frontEndUri}`
   });
 
   res.json({url: session.url})
