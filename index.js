@@ -102,6 +102,13 @@ app.post(`/fish/:sessionId`, async (req, res) => {
   }
 })
 
+app.get('/fish/:id', (req, res) => {
+  const query = {
+    text: 'SELECT bought FROM fish_inventory WHERE id = $1',
+    values: [req.params.id],
+  }
+  getQuery(query, res)
+})
 
 app.get('/fish', (_, res) => {
   const query = {
