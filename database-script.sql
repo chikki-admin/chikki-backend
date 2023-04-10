@@ -7,10 +7,17 @@ CREATE TABLE "fish_inventory" (
   "bought" boolean NOT NULL,
   "display" boolean NOT NULL,
   "image_source" varchar(255) NOT NULL,
+  "video_source" varchar(255) NOT NULL,
   "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("id")
 )
 
-
-ALTER USER postgres WITH PASSWORD 'newpassword';
+CREATE TABLE "users" (
+  "id" UUID NOT NULL,
+  "email" varchar(255) NOT NULL,
+  "password" varchar(255) NOT NULL,
+  "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY ("id")
+)
