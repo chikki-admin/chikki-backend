@@ -2,8 +2,7 @@
 
 const pg = require('pg')
 // Environment Variables
-const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD,
-    INTERNALUSERNAME, INTERNALPASSWORD, NODE_ENV } = process.env
+const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, NODE_ENV } = process.env
 
 const clientConfig = () => {
     if (NODE_ENV == 'production') {
@@ -14,8 +13,6 @@ const clientConfig = () => {
         database: PGDATABASE,
         user: PGUSER,
         password: PGPASSWORD,
-        internalUser: INTERNALUSERNAME,
-        interalPassword: INTERNALPASSWORD,
         frontEndUri: 'https://www.chikkiaquatics.com'
       }
     } else {
@@ -26,13 +23,11 @@ const clientConfig = () => {
         database: 'postgres',
         user: 'postgres',
         password: 'newpassword',
-        internalUser: 'test',
-        interalPassword: 'test',
         frontEndUri: 'http://localhost:3000'
       }
     }
   }
-  const { host, dbPort, database, user, password, internalUser, interalPassword, frontEndUri} = clientConfig()
+  const { host, dbPort, database, user, password, frontEndUri} = clientConfig()
   const pool = new pg.Pool({
     host: host,
     port: dbPort,
@@ -41,4 +36,4 @@ const clientConfig = () => {
     database: database
   })
 
-  module.exports = { pool, host, dbPort, database, user, password, internalUser, interalPassword, frontEndUri}
+  module.exports = { pool, host, dbPort, database, user, password, frontEndUri}

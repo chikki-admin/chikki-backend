@@ -15,4 +15,15 @@ const putQuery = (query, res) => {
         .catch((e) => console.error(e.stack))
 }
 
-module.exports = { postQuery, getQuery, putQuery}
+const deleteQuery = (query, res) => {
+    return pool.query(query).then((_) => res.sendStatus(200)).catch((e) => console.error(e.stack))
+}
+
+const FishStatus = {
+    NOT_BOUGHT: 'not_bought',
+    SOLD: 'sold',
+    SHIPPED: 'shipped',
+    DELIVERED: 'delivered',
+}
+
+module.exports = { postQuery, getQuery, putQuery, deleteQuery, FishStatus}

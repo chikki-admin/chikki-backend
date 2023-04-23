@@ -4,7 +4,7 @@ const { pool } = require('../generics/database-connector')
 const { v4: uuidv4 } = require('uuid');
 const jwt = require('jsonwebtoken');
 
-const secretKey = 'mysecretkey';
+const secretKey = process.env.SECRET_KEY || "myawesomesecretkey";
 
 // define middleware function
 const authenticateToken = (req, res, next) => {
@@ -35,7 +35,18 @@ const authenticateToken = (req, res, next) => {
 
 const authorizationRouters = express.Router()
 
-authorizationRouters.get('/', async (req, res) => {
+authorizationRouters.get('/seller/:sellerId', async (_, res) => {
+  const {sellerId} = req.params
+    const query = {
+        text: 'SELECT * FROM users where id = $1',
+        values: [sellerId],
+    }
+    result = await pool.query(query)
+    res.status(200).send({seller: result.rows})
+})
+
+
+authorizationRouters.post('/login', async (req, res) => {
   const {email, password} = req.body
   const query = {
     text: 'SELECT * FROM users WHERE email = $1',
@@ -45,7 +56,7 @@ authorizationRouters.get('/', async (req, res) => {
   user = result.rows[0]
   if (user.password === password) {
     const token = jwt.sign(user, secretKey);
-    res.send(token);
+    res.status(200).send({token, userId : user.id})
   } else {
     res.send(403)
   }
