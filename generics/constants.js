@@ -1,4 +1,5 @@
-const {pool} = require('./database-connector')
+const {pool} = require('./database-connector');
+
 const postQuery = (query, res) => {
     return pool.query(query)
         .then((_) => res.sendStatus(200))

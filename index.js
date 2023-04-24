@@ -2,18 +2,21 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const { v4: uuidv4 } = require('uuid');
-const app = express()
-const port = 8000
-const stripe_key = 'sk_test_51MrE0PJN8JLDL0ga0Xt2I9zDq8v2mrRNPfDFahHXPAGOvdnIw5Z1V3FrjW1y0adrsRV8zGnWGw6ouyU5GWo6ExIm00gupXlgzt'
-const stripe = require('stripe')(stripe_key)
 const { postQuery, getQuery, putQuery, deleteQuery, FishStatus } = require('./generics/constants')
 const { pool, host, dbPort, database, user, password, frontEndUri} = require('./generics/database-connector')
-const { authorizationRouters, authenticateToken } = require('./apis/authorizations')
-
+const { authorizationRouters, authenticateToken } = require('./apis/authorizations');
+const { AppConfig } = require('./generics/configs');
+const { uploadImage } = require('./generics/aws-client');
+const app = express()
+const port = 8000
+const stripe = require('stripe')(AppConfig.StripeKey)
 
 
 // Middleware
-app.use(bodyParser.json())
+app.use(bodyParser.json({
+  extended: true,
+  limit: '3mb'
+}))
 app.use(cors())
 
 // Local constants
@@ -22,13 +25,15 @@ const shippingCost = 52
 pool.connect().catch((e) => console.error(e.stack))
 
 // Routes
-app.post('/fish', authenticateToken, (req, res) => {
-  const {name, price, origin, s3Source, description, username, password, sellerId} = req.body
+app.post('/fish', authenticateToken, async (req, res) => {
+  const {name, price, origin, s3Source, description, sellerId} = req.body
+  s3_path = await uploadImage(s3Source, `${name}-${sellerId}`)
+  console.log(s3_path)
   const query = {
     text: 'INSERT INTO fish_inventory \
     (id, fish_name, origin, price, status, display, image_source, description, seller_id) \
     VALUES($1, $2, $3, $4, $5, $6, $7, $8 ,$9)',
-    values: [uuidv4(), name, origin, price, FishStatus.NOT_BOUGHT, true, s3Source, description, sellerId],
+    values: [uuidv4(), name, origin, price, FishStatus.NOT_BOUGHT, true, s3_path, description, sellerId],
   }
   postQuery(query, res)
 })
@@ -63,8 +68,6 @@ app.get('/fish', (_, res) => {
 })
 
 app.get('/fish/pagination/:offSet', async (req, res) => {
-  await new Promise(r => setTimeout(r, 3000));
-  console.log('/fish/pagination/:offSet')
   const {offSet} = req.params
   const query = {
     text: `
