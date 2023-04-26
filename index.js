@@ -28,7 +28,6 @@ pool.connect().catch((e) => console.error(e.stack))
 app.post('/fish', authenticateToken, async (req, res) => {
   const {name, price, origin, s3Source, description, sellerId} = req.body
   s3_path = await uploadImage(s3Source, `${name}-${sellerId}`)
-  console.log(s3_path)
   const query = {
     text: 'INSERT INTO fish_inventory \
     (id, fish_name, origin, price, status, display, image_source, description, seller_id) \
@@ -92,7 +91,6 @@ app.get('/seller/:sellerId/fish', (req, res) => {
 
 app.delete('/fish/:fishId', authenticateToken, (req, res) => {
   const { fishId } = req.params
-  console.log(fishId)
   const query = {
     text: 'DELETE FROM fish_inventory WHERE id = $1',  
     values: [fishId],
