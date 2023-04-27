@@ -1,6 +1,7 @@
 
 
 const pg = require('pg')
+const fs = require('fs')
 // Environment Variables
 const { PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD, NODE_ENV } = process.env
 
@@ -36,7 +37,12 @@ const connectToDatabase = () => {
       port: dbPort,
       user: user,
       password: password,
-      database: database
+      database: database,
+      ssl: {
+        ca: fs
+          .readFileSync("/etc/ssl/certs/rds-ca-2019-root.pem")
+          .toString()
+      }
     })
     console.log(`Connectedto ${host}:${dbPort}/${database} as ${user}`)
     return pool
