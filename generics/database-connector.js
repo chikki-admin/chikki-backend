@@ -39,9 +39,12 @@ const connectToDatabase = () => {
       database: database
     })
     console.log(`Connectedto ${host}:${dbPort}/${database} as ${user}`)
+    return pool
   }
   catch (e) {
     console.error(e.stack)
   }
+}
+const pool = connectToDatabase()
 
 module.exports = { pool, host, dbPort, database, user, password, frontEndUri}
