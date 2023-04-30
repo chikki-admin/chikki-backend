@@ -45,6 +45,7 @@ const connectToDatabase = () => {
       }
     })
     console.log(`Connected to ${host}:${dbPort}/${database} as ${user}`)
+    pool.query('SELECT NOW()').then((res) => console.log(`Connected to ${res.rows[0].now}`))
     return pool
   }
   catch (e) {
