@@ -44,7 +44,7 @@ const connectToDatabase = () => {
           .toString()
       }
     })
-    console.log(`Connectedto ${host}:${dbPort}/${database} as ${user}`)
+    console.log(`Connected to ${host}:${dbPort}/${database} as ${user}`)
     return pool
   }
   catch (e) {
