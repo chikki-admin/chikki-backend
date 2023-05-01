@@ -18,11 +18,7 @@ app.use(bodyParser.json({
   limit: '3mb'
 }))
 
-const corsOptions = {
-  origin: frontEndUri
-}
-
-app.use(cors(corsOptions))
+app.use(cors())
 
 // Local constants
 const shippingCost = 52
