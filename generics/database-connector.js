@@ -14,7 +14,7 @@ const clientConfig = () => {
       database: PGDATABASE,
       user: PGUSER,
       password: PGPASSWORD,
-      frontEndUri: 'https://www.chikkiaquatics.com'
+      frontEndUri: 'https://chikkiaquatics.com/'
     }
   } else {
     console.log(`Development Mode ${Date.now()}}`)
