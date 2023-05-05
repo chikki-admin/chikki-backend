@@ -5,8 +5,9 @@ const { v4: uuidv4 } = require('uuid');
 const { postQuery, getQuery, putQuery, deleteQuery, FishStatus } = require('./generics/constants')
 const { pool, host, dbPort, database, user, password, frontEndUri} = require('./generics/database-connector')
 const { authorizationRouters, authenticateToken } = require('./apis/authorizations');
+const { emailVerificationRouters } = require('./apis/email-verification-api');
 const { AppConfig } = require('./generics/configs');
-const { uploadImage } = require('./generics/aws-client');
+const { uploadImage, uploadVideo } = require('./generics/aws-client');
 const app = express()
 const port = 8000
 const stripe = require('stripe')(AppConfig.StripeKey)
@@ -15,7 +16,7 @@ const stripe = require('stripe')(AppConfig.StripeKey)
 // Middleware
 app.use(bodyParser.json({
   extended: true,
-  limit: '3mb'
+  limit: '5mb'
 }))
 
 app.use(cors())
@@ -33,13 +34,14 @@ pool.connect().catch((e) => console.error(e.stack))
 
 // Routes
 app.post('/fish', authenticateToken, async (req, res) => {
-  const {name, price, origin, s3Source, description, sellerId} = req.body
+  const {name, price, origin, s3Source, description, sellerId, videoSource} = req.body
   s3_path = await uploadImage(s3Source, `${name}-${sellerId}`)
+  video_path = await uploadVideo(videoSource, `video-${name}-${sellerId}`)
   const query = {
     text: 'INSERT INTO fish_inventory \
-    (id, fish_name, origin, price, status, display, image_source, description, seller_id) \
-    VALUES($1, $2, $3, $4, $5, $6, $7, $8 ,$9)',
-    values: [uuidv4(), name, origin, price, FishStatus.NOT_BOUGHT, true, s3_path, description, sellerId],
+    (id, fish_name, origin, price, status, display, image_source, video_source, description, seller_id) \
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8 ,$9, $10)',
+    values: [uuidv4(), name, origin, price, FishStatus.NOT_BOUGHT, true, s3_path,video_path, description, sellerId],
   }
   postQuery(query, res)
 })
@@ -117,10 +119,10 @@ app.post('/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Fish - ${fishName} and shipping cost of ${shippingCost}$`,
+            name: `Fish - ${fishName} price at ${parseInt(fishPrice)}$ and shipping cost of ${shippingCost}$`,
             images: [],
           },
-          unit_amount: parseInt(fishPrice)*100,
+          unit_amount: (parseInt(fishPrice)+ shippingCost )*100,
         },
         quantity: 1
       },
@@ -138,6 +140,7 @@ app.post('/create-checkout-session', async (req, res) => {
 
 // Add authorization routes
 app.use('/auth', authorizationRouters)
+app.use('/email', emailVerificationRouters)
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}`)

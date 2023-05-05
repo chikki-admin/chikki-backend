@@ -14,7 +14,8 @@ const clientConfig = () => {
       database: PGDATABASE,
       user: PGUSER,
       password: PGPASSWORD,
-      frontEndUri: 'https://chikkiaquatics.com/'
+      frontEndUri: 'https://chikkiaquatics.com/',
+      backendUri: 'https://18.223.109.254/'
     }
   } else {
     console.log(`Development Mode ${Date.now()}}`)
@@ -24,12 +25,13 @@ const clientConfig = () => {
       database: 'postgres',
       user: 'postgres',
       password: 'newpassword',
-      frontEndUri: 'http://localhost:3000'
+      frontEndUri: 'http://localhost:3000',
+      backendUri: 'http://localhost:8000'
     }
   }
 }
 
-const { host, dbPort, database, user, password, frontEndUri} = clientConfig()
+const { host, dbPort, database, user, password, frontEndUri, backendUri} = clientConfig()
 const connectToDatabase = () => {
   try{
     const pool = new pg.Pool({
@@ -38,11 +40,12 @@ const connectToDatabase = () => {
       user: user,
       password: password,
       database: database,
-      ssl: {
-        ca: fs
-          .readFileSync("/etc/ssl/certs/rds-ca-2019-root.pem")
-          .toString()
-      }
+      // Commented out for local development
+      // ssl: {
+      //   ca: fs
+      //     .readFileSync("/etc/ssl/certs/rds-ca-2019-root.pem")
+      //     .toString()
+      // }
     })
     console.log(`Connected to ${host}:${dbPort}/${database} as ${user}`)
     return pool
@@ -53,4 +56,4 @@ const connectToDatabase = () => {
 }
 const pool = connectToDatabase()
 
-module.exports = { pool, host, dbPort, database, user, password, frontEndUri}
+module.exports = { pool, host, dbPort, database, user, password, frontEndUri, backendUri}

@@ -19,6 +19,8 @@ CREATE TABLE "users" (
   "email" varchar(255) NOT NULL UNIQUE,
   "seller_name" varchar(255) NOT NULL UNIQUE,
   "password" varchar(255) NOT NULL,
+  "verified" boolean NOT NULL,
+  "verification_code" varchar(255) NOT NULL,
   "created_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "updated_at" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY ("id")
